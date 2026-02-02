@@ -236,7 +236,7 @@ export const OrgChartVisualization = () => {
                                 <div className="flex-1 px-3 mt-4 flex items-center gap-3 bg-card min-h-0">
 
                                     <Avatar className="h-10 w-10 shrink-0 border-2 border-muted">
-                                        <AvatarImage src="" alt={data.name} />
+                                        <AvatarImage src={data.attributes?.avatar} alt={data.name} className="object-cover" />
                                         <AvatarFallback className="text-xs bg-muted text-muted-foreground font-medium">
                                             {getInitials(data.name)}
                                         </AvatarFallback>

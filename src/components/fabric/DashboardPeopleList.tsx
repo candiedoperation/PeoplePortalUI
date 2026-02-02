@@ -22,7 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { PEOPLEPORTAL_SERVER_ENDPOINT } from "@/commons/config"
 import { toast } from "sonner"
 import { flexRender, getCoreRowModel, getFilteredRowModel, useReactTable, type ColumnDef, type ColumnFiltersState } from "@tanstack/react-table"
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { Input } from "../ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "../ui/pagination";
@@ -52,6 +52,7 @@ export interface UserInformationBrief {
     memberSince: Date,
     active: boolean,
     attributes: any,
+    avatar?: string
 }
 
 export const DashboardPeopleList = () => {
@@ -96,6 +97,7 @@ export const DashboardPeopleList = () => {
                 return (
                     <div className="flex items-center">
                         <Avatar className="h-9 w-9 rounded-lg">
+                            <AvatarImage src={row.original.avatar} alt={row.original.name} className="object-cover" />
                             <AvatarFallback className="rounded-lg bg-orange-100 text-orange-600">
                                 {initials}
                             </AvatarFallback>

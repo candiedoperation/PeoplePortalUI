@@ -674,7 +674,7 @@ const MembersFilterPopover = (props: { handleSelect: (member: UserInformationBri
                                     }}
                                 >
                                     <Avatar className="h-8 w-8 rounded-lg">
-                                        <AvatarImage src="https://githuwb.com/shadcn.png" alt="@shadcn" />
+                                        <AvatarImage src={member.avatar} alt={member.name} className="object-cover" />
                                         <AvatarFallback className="rounded-lg"><User2Icon size="16" /></AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col">
