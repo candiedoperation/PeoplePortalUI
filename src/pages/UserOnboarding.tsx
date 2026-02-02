@@ -379,13 +379,6 @@ const PersonalInfoStage = (props: PersonalInfoStageProps) => {
     const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(null)
     const [isCroppingOpen, setIsCroppingOpen] = React.useState(false)
 
-    React.useEffect(() => {
-        return () => {
-            if (preview) {
-                URL.revokeObjectURL(preview);
-            }
-        }
-    }, [preview]);
 
     React.useEffect(() => {
         fetch("https://api.umd.io/v1/majors/list")
