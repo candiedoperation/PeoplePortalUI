@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ORGANIZATION_NAME } from '@/commons/strings'
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar'
-import { Check, CheckCircle2Icon, ChevronsUpDown, Loader2Icon, Lock, MessagesSquare, Signature, TriangleAlertIcon, UploadCloudIcon, User2Icon, XCircleIcon } from 'lucide-react'
+import { Check, CheckCircle2Icon, ChevronsUpDown, Loader2Icon, Lock, MessagesSquare, Minus, Plus, Signature, TriangleAlertIcon, UploadCloudIcon, User2Icon, XCircleIcon } from 'lucide-react'
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -48,6 +48,7 @@ import zxcvbn from 'zxcvbn'
 import { Progress } from '@/components/ui/progress'
 import Cropper, { type Area, type Point } from 'react-easy-crop'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Slider } from '@/components/ui/slider'
 
 interface CompleteSetupStageProps {
     stages: { name: string, status: boolean }[],
@@ -57,7 +58,7 @@ interface CompleteSetupStageProps {
 
 interface SlackJoinStageProps {
     email: string,
-    inviteUrl: string,
+    slackInviteLink: string,
     defaultVerified: boolean,
     stepComplete: (joined: boolean) => void
 }
@@ -105,6 +106,7 @@ interface APIInviteInfo {
     teamName: string;
     inviterPk: number;
     expiresAt: Date;
+    slackInviteLink: string;
 }
 
 export const UserOnboarding = () => {
@@ -208,7 +210,7 @@ export const UserOnboarding = () => {
 
     const [slackJoinProps, setSlackJoinProps] = React.useState({
         email: "Loading",
-        inviteUrl: '#',
+        slackInviteLink: '#',
         stepComplete: handleSlackJoinComplete
     })
 
@@ -231,7 +233,8 @@ export const UserOnboarding = () => {
 
                 setSlackJoinProps((existingProps) => ({
                     ...existingProps,
-                    email: inviteData.inviteEmail
+                    email: inviteData.inviteEmail,
+                    slackInviteLink: inviteData.slackInviteLink
                 }))
             })
 
@@ -601,6 +604,24 @@ const PersonalInfoStage = (props: PersonalInfoStageProps) => {
                             />
                         )}
                     </div>
+                    <div className="flex items-center justify-center gap-4 mt-4 w-full">
+                        <Minus
+                            className="w-4 h-4 cursor-pointer hover:opacity-70"
+                            onClick={() => setZoom(Math.max(1, zoom - 0.1))}
+                        />
+                        <Slider
+                            value={[zoom]}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                            onValueChange={(value) => setZoom(value[0])}
+                            className="w-[50%]"
+                        />
+                        <Plus
+                            className="w-4 h-4 cursor-pointer hover:opacity-70"
+                            onClick={() => setZoom(Math.min(3, zoom + 0.1))}
+                        />
+                    </div>
                     <DialogFooter className="mt-4">
                         <Button variant="outline" onClick={() => setIsCroppingOpen(false)}>Cancel</Button>
                         <Button onClick={processAndUploadAvatar}>Crop & Upload</Button>
@@ -740,7 +761,7 @@ const SlackJoinStage = (props: SlackJoinStageProps) => {
                     <AlertDescription>
                         <span>
                             Please join App Dev's Slack Channel by
-                            <a className='text-blue-500' href={props.inviteUrl}> clicking this link</a>.
+                            <a className='text-blue-500' href={props.slackInviteLink} target="_blank" rel="noopener noreferrer"> clicking this link</a>.
                             You need to use the email address <b>{props.email}</b> to create or login to slack.
                             This portal validates your slack membership status by verifing your email address.
                         </span>
@@ -767,7 +788,7 @@ const ProprietaryInformationStage = (props: ProprietaryInformationStageProps) =>
             <div className='flex flex-col items-center gap-4 mt-5 w-full flex-grow-1'>
                 <iframe
                     className='w-[100%] h-[100%] rounded-md'
-                    src='https://www.cte.iup.edu/cte/Resources/PDF_TestPage.pdf'
+                    src='/IntellectualPropertyAgreement.pdf'
                     style={{
                         border: 'none'
                     }}
@@ -793,10 +814,11 @@ const ProprietaryInformationStage = (props: ProprietaryInformationStageProps) =>
 const CreatePasswordStage = (props: CreatePasswordStageProps) => {
     const [password, setPassword] = React.useState(props.defaultPassword)
     const [confirmPassword, setConfirmPassword] = React.useState(props.defaultPassword)
+    const [isInputFocused, setIsInputFocused] = React.useState(false)
 
     const strengthResult = React.useMemo(() => zxcvbn(password), [password])
-    const strengthScore = strengthResult.score // 0-4
-    const strengthPercentage = (strengthScore + 1) * 20 // 20, 40, 60, 80, 100
+    const strengthScore = strengthResult.score
+    const strengthPercentage = (strengthScore + 1) * 20
 
     const getStrengthColor = (score: number) => {
         switch (score) {
@@ -844,13 +866,58 @@ const CreatePasswordStage = (props: CreatePasswordStageProps) => {
                 {/* Get Password! */}
                 <div className={'grid gap-2 w-lg mt-5'}>
                     <Label htmlFor="password">Create New Password</Label>
-                    <Input
-                        id="password"
-                        type='password'
-                        value={password}
-                        placeholder='Minimum 12 characters'
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <Popover open={password.length > 0 && isInputFocused}>
+                        <PopoverTrigger asChild>
+                            <Input
+                                id="password"
+                                type='password'
+                                value={password}
+                                placeholder='Minimum 12 characters'
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setIsInputFocused(false)}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </PopoverTrigger>
+                        <PopoverContent
+                            className="w-80 p-3"
+                            align="start"
+                            side="bottom"
+                            sideOffset={10}
+                            onOpenAutoFocus={(e) => e.preventDefault()}
+                        >
+                            <div className="space-y-3">
+                                <div className="space-y-1">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-semibold">Password Strength</span>
+                                        <span className={cn("text-xs font-bold", getStrengthColor(strengthScore).replace('bg-', 'text-'))}>
+                                            {getStrengthLabel(strengthScore)}
+                                        </span>
+                                    </div>
+                                    <Progress
+                                        value={strengthPercentage}
+                                        className="h-1.5"
+                                        indicatorClassName={getStrengthColor(strengthScore)}
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Requirements</p>
+                                    {passwordRequirements.filter(req => req.name !== "Passwords match").map((req, i) => (
+                                        <div key={i} className="flex items-center gap-2">
+                                            {req.status ? (
+                                                <CheckCircle2Icon className="h-3.5 w-3.5 text-green-500" />
+                                            ) : (
+                                                <div className="h-3.5 w-3.5 rounded-full border border-muted-foreground/30" />
+                                            )}
+                                            <span className={cn("text-xs", req.status ? "text-foreground" : "text-muted-foreground")}>
+                                                {req.name}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
                 </div>
 
                 <div className={'grid gap-2 w-lg'}>
@@ -862,46 +929,21 @@ const CreatePasswordStage = (props: CreatePasswordStageProps) => {
                         placeholder='Confirm your Password'
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />
-                </div>
-
-                {/* Password Strength and Requirements */}
-                <div className="w-lg space-y-4 mt-4 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Overall Strength</span>
-                            <span className={cn("text-xs font-bold", getStrengthColor(strengthScore).replace('bg-', 'text-'))}>
-                                {getStrengthLabel(strengthScore)}
-                            </span>
+                    {confirmPassword.length > 0 && (
+                        <div className="flex items-center gap-2 mt-1">
+                            {password === confirmPassword ? (
+                                <>
+                                    <CheckCircle2Icon className="h-3.5 w-3.5 text-green-500" />
+                                    <span className="text-xs text-green-600 font-medium">Passwords match</span>
+                                </>
+                            ) : (
+                                <>
+                                    <XCircleIcon className="h-3.5 w-3.5 text-red-500" />
+                                    <span className="text-xs text-red-500 font-medium">Passwords do not match</span>
+                                </>
+                            )}
                         </div>
-                        <Progress
-                            value={strengthPercentage}
-                            className="h-2"
-                            indicatorClassName={getStrengthColor(strengthScore)}
-                        />
-                    </div>
-
-                    <Table>
-                        <TableBody>
-                            {passwordRequirements.map((req, i) => (
-                                <TableRow key={i} className="border-none hover:bg-transparent">
-                                    <TableCell className="py-1 px-0">{req.name}</TableCell>
-                                    <TableCell className="py-1 px-0 text-right">
-                                        {req.status ? (
-                                            <span className='inline-flex gap-1 items-center text-green-500 text-xs font-medium'>
-                                                <CheckCircle2Icon size="14" /> Complete
-                                            </span>
-                                        ) : (
-                                            <span className='inline-flex gap-1 items-center text-red-400 text-xs font-medium'>
-                                                <XCircleIcon size="14" /> Incomplete
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-
-
+                    )}
                 </div>
             </div>
 
