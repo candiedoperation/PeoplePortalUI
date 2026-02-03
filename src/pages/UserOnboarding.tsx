@@ -600,7 +600,9 @@ const PersonalInfoStage = (props: PersonalInfoStageProps) => {
         <div className='flex flex-col h-full w-full items-center justify-center p-12'>
             <Avatar title='Upload Profile Picture' onClick={() => fileUploadRef.current?.click()} className="size-32 rounded-full cursor-pointer">
                 <AvatarImage src={preview ?? undefined} alt="Profile" />
-                <AvatarFallback><UploadCloudIcon className='size-8' /></AvatarFallback>
+                <AvatarFallback>
+                    {isUploading ? <Loader2Icon className='size-8 animate-spin' /> : <UploadCloudIcon className='size-8' />}
+                </AvatarFallback>
             </Avatar>
             <p className='mt-4 mb-2'>Upload your Profile Picture</p>
 
