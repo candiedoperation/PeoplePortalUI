@@ -576,6 +576,9 @@ const PersonalInfoStage = (props: PersonalInfoStageProps) => {
                 if (uploadRes.status === 403 && errorText.includes("EntityTooLarge")) {
                     throw new Error("File is too large (S3 Limit Exceeded)");
                 }
+                if (uploadRes.status === 400) {
+                    throw new Error("Please try a different image.");
+                }
                 throw new Error(`Failed to upload to S3: ${uploadRes.status} ${uploadRes.statusText}`);
             }
 

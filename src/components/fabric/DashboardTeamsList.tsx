@@ -139,7 +139,7 @@ export const DashboardTeamsList = () => {
     }, []);
 
     return (
-        <div className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-full h-full min-h-0">
             { /* Attach Dialogs */}
             <CreateNewTeamDialog
                 open={createNewTeamDialogOpen}
@@ -171,7 +171,7 @@ export const DashboardTeamsList = () => {
                 <Button onClick={() => { setCreateNewTeamDialogOpen((open) => !open) }}><PlusIcon /> Create New Team</Button>
             </div>
 
-            <div className="overflow-hidden rounded-md border">
+            <div className="flex-1 min-h-0 overflow-auto rounded-md border">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (

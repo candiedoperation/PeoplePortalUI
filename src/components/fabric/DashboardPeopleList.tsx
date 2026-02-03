@@ -199,7 +199,7 @@ export const DashboardPeopleList = () => {
     };
 
     return (
-        <div className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-full h-full min-h-0">
             <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">People</h1>
             <h4 className="text-xl text-muted-foreground">Here&apos;s Everyone in App Dev!</h4>
 
@@ -244,7 +244,7 @@ export const DashboardPeopleList = () => {
                 </Pagination>
             </div>
 
-            <div className={`overflow-hidden rounded-md border ${isLoading ? "opacity-50" : ""}`}>
+            <div className={`flex-1 min-h-0 overflow-auto rounded-md border ${isLoading ? "opacity-50" : ""}`}>
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
